@@ -34,6 +34,7 @@
 
 (require 'pcre2el) ;§maybe: only use in development for starting performance issue
 (require 'omni-tags-face)
+(require 'omni-tags-navigation)
 
 ;; §TOFIX: Make it appear in org comment!!! (probably something to see with `org-mode')
 ;; §Tose! ?? what _ symbolize in regexp? match ;?
@@ -96,7 +97,8 @@
   "Complex Tag §todo: repeat the same one without quotes")
 
 (defvar ot:whatever-follow-keyword ;§torename
-  `(,(ot:make-pattern "%s(['@\-_ [:alnum:]]+)(:)( .*)?$");; §TODO: extract to custom
+  `(,(ot:make-pattern "%s(['@\-_ [:alnum:]]+)(:)( [^¤§]*|$)")
+    ;; §TODO: extract to custom [word components and so
     (1 'ot:face:symbol      ,ot:override)
     (2 'ot:face:name        ,ot:override)
     (3 'ot:face:separator   ,ot:override) ;§maybe, delete (), and use wrapping.
@@ -117,6 +119,8 @@
 ;; §todo: symple tag not in bold
 ;;        just symbol. <¤> <<¤>>
 ;;        place holder. (temporary): (¤) [¤] {¤}
+;;        wrapped tag:  [§ abcb ]
+
 (setq ot:tag-patterns
       (list `(,ot:primary-tag  . 'ot:face:symbol) ; Inline
 	    ot:tag-detailed-keyword
@@ -134,49 +138,23 @@ Keywords are stored in list `ot:tag-patterns'."
    ot:tag-patterns)
   (font-lock-fontify-buffer))
 
-
 (defun ot:font-off ()
   "Remove fontifications for `omni-tags'."                                       ;
   (mapcar (lambda (keyword) (font-lock-add-keywords nil keyword)) ot:tag-patterns)
   (font-lock-fontify-buffer))
 
   ;;; ¤* Utils fonctions
-;; §todo: autoload
-(defun ot:occur-tags ()
-  "Call occur on My §tags."
-  (interactive)
-  (push-mark)
-  (occur "§\\w+" )) ;; §TODO: use pattern!
-;; §next with helm ;moccur...
-;; couper en deux avec 1&2ary?
-
-;; §maybe cycle?
-(defun ot:next-tags ()
-  "Go to next §tags."
-  (interactive)
-  (push-mark) ;; §maybe: not if previous command was either next/previous tag? ¤maybe: configurable behavior?
-  ;; §maybe: special mark ring?
-  (unless (search-forward-regexp "§\\w+" nil t)
-    ;;§todo: make generic to adapt to tag symbol: : default arg symbol (that would be call by next-primary/secondary)
-    (message "No More Founds Tags!")))
-;; §maybe: si ressaye, revient au début?
-
-(defun ot:previous-tags ()
-  "Go to prev §tags."
-  (interactive)
-  (unless (search-backward-regexp "§\\w+" nil t)
-    (message "No Tags Before!")))
 
 
-;; §todo: impr: message erreur
-;; org opening of folding
 ;; §next: tagpuration?
-;; §idée: move dans `ot:default-config' ?
 ;; §TODO: proposer dans la documentation un use!!
 ;; §todo:  heading. fonctions pour naviguer.
 ;; map à prefix pour y associer un ensemblede fonction. ex: C-x § ou s-§
 
-;; §later: add some simmbol in the fringe? ¤inspiration:gitgutter-flycheck-fixmargin
+;; §todo: impr: message erreur
+;; org opening of folding
+
+;; §later: add some symbol in the fringe? ¤inspiration:gitgutter-flycheck-fixmargin
 ;; §maybe: do something with marks
 
 ;;;###autoload
@@ -193,9 +171,9 @@ Keywords are stored in list `ot:tag-patterns'."
 	   (ot:font-off))))
 
 ;; §config:
+;; §idée: move dans `ot:default-config' ?
 ;; (add-hook 'org-mode-hook 'omni-tags-mode)
 ;; (add-hook 'prog-mode-hook 'omni-tags-mode)
-
 
 (provide 'omni-tags)
 
